@@ -3,8 +3,7 @@ terraform {
 }
 
 
-
-resource "kubernetes_deployment" "deploypod" {
+resource "kubernetes_deployment" "deploygrafana" {
   metadata {
     name = var.pod_name
     #namespace = var.namespaces[0]
@@ -15,7 +14,7 @@ resource "kubernetes_deployment" "deploypod" {
   }
 
   spec {
-    replicas = var.pod_replicas
+    replicas = 1
 
     selector {
       match_labels = {
@@ -35,6 +34,12 @@ resource "kubernetes_deployment" "deploypod" {
           image = var.pod_image
           name  = var.pod_name
 
+          env {
+            name = "GF_INSTALL_PLUGINS"
+            value = "grafana-clock-panel,grafana-simple-json-datasource"
+          }
+
+
           resources {
             limits {
 
@@ -47,11 +52,15 @@ resource "kubernetes_deployment" "deploypod" {
           }
 
 
-        }
+
+
+
       }
     }
   }
 }
+}
+
 
 resource "kubernetes_service" "frontend" {
   metadata {
@@ -62,15 +71,18 @@ resource "kubernetes_service" "frontend" {
 
   spec {
     selector = {
-      app = "${kubernetes_deployment.deploypod.metadata.0.labels.app}"
+      app = "${kubernetes_deployment.deploygrafana.metadata.0.labels.app}"
       #app = "demo"
     }
     port {
       port = var.service_port
 
 
+
+
     }
-    type = "LoadBalancer"
+    type = "NodePort"
   }
 }
+
 

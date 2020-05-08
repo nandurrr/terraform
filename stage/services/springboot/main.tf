@@ -2,16 +2,7 @@ terraform {
   required_version = ">= 0.12, < 0.13"
 }
 
-resource "kubernetes_namespace" "create_namespaces" {
-  count = length(var.namespaces)
-    metadata {
 
-      name= var.namespaces[count.index]
-
-
-    }
-
-}
 
 resource "kubernetes_deployment" "deploypod" {
   metadata {
@@ -71,8 +62,8 @@ resource "kubernetes_service" "frontend" {
 
   spec {
     selector = {
-      #app = "${kubernetes_deployment.deploypod.metadata.0.labels.app}"
-      app = "demo"
+      app = "${kubernetes_deployment.deploypod.metadata.0.labels.app}"
+      #app = "demo"
     }
     port {
       port = var.service_port
